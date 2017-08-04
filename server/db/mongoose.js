@@ -6,7 +6,9 @@ let mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 mongoose.connect(process.env.MONGODB_URI, {useMongoClient: true})
   .then(() => {
-    console.log('Successfully connect to the database.')
+    if (process.env.NODE_ENV !== 'test') {
+      console.log('Successfully connect to the database.')
+    }
   })
   .catch(() => {
     console.log('Could not connect to the database. Server terminated!')

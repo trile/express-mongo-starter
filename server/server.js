@@ -13,24 +13,25 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
 
-app.use((req, res, next) => {
-  let now = new Date().toString();
-  console.log(`${now}: ${req.method} ${req.url}`);
-  next();
-})
+// app.use((req, res, next) => {
+//   let now = new Date().toString();
+//   console.log(`${now}: ${req.method} ${req.url}`);
+//   next();
+// })
 
-app.get('/learngreeting', (req, res, next) => {
-  let greeting = new Greeting({text: "Hello World!"})
+app.post('/learngreeting', (req, res, next) => {
+  if (!req.body.text) return res.status(400).send("Bad request");
+  let greeting = new Greeting({text : req.body.text})
   greeting.save().then(() => {
     res.status(200).send("I have learned to say greeting.");
   }).catch((err) => next(err));
 })
 
 app.get('/saygreeting', (req, res, next) => {
-  Greeting.findOne().then((todo) => {
-    if (!todo) {return res.status(404).send("I have not learned anything!")};
+  Greeting.findOne().then((greeting) => {
+    if (!greeting) {return res.status(404).send("I have not learned anything!")};
     res.status(200).send({
-      "messages": [{"text" : todo.text}]
+      text: greeting.text
     })
   }).catch((err) => next(err));
 });
@@ -74,7 +75,9 @@ app.use(function (err, req, res, next) {
 });
 
 app.listen(process.env.PORT, () => {
-  console.log(`Starting server on PORT ${process.env.PORT}`);
+  if (process.env.NODE_ENV !== 'test') {
+    console.log(`Starting server on PORT ${process.env.PORT}`);
+  }
 })
 
 module.exports = {app};
